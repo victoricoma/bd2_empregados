@@ -18,3 +18,13 @@ select
     ) as Tributo
 from
 	empregado;
+    
+select
+	emp.nome as empregado,
+    emp.salario as renda,
+    count(dep.cod_dep) as dependentes,
+    format(((emp.salario * 13.3)-(2275 * count(dep.cod_dep)))/13.3,2) as IRPF_real
+from empregado emp
+left join dependente dep
+on emp.cod_emp = dep.cod_emp
+group by emp.nome, emp.salario;
