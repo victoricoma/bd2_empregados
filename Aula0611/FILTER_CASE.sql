@@ -1,5 +1,8 @@
+delimiter //
+create temporary table tp_salario_liquido
 select
 	dto.nome as departamento,
+    emp.cod_emp as cod_emp,
     emp.nome as empregado,
     emp.salario as renda,
     case
@@ -23,7 +26,32 @@ select
         when (emp.salario < 3856.95 and emp.salario <= 7507.49) 
         then (emp.salario * 0.14)
         else (1051.05)
-	end as INSS
+	end as INSS,
+    (emp.salario * 0.08) as FGTS
 from departamento dto
 inner join empregado emp
 on dto.cod_depto = emp.cod_depto;
+
+select 
+*, 
+(FGTS+INSS+IRPF) as descontos, 
+(renda - (FGTS+INSS+IRPF)) as renda_liquida 
+from tp_salario_liquido;
+
+create temporary table tp_contagem_dependentes
+select 
+emp.cod_emp as codigo,
+emp.nome as empregado,
+count(dep.cod_dep) as dependentes
+from
+empregado emp
+inner join dependente dep
+on emp.cod_emp = dep.cod_emp
+group by emp.cod_emp, emp.nome;
+
+select * from tp_contagem_dependentes;
+
+drop table tp_contagem_dependentes;
+drop table tp_salario_liquido;
+//
+
